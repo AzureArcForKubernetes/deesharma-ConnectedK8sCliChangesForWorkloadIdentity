@@ -562,12 +562,11 @@ def cleanup_release_install_namespace_if_exists():
 
 
 # DO NOT use this method for re-put scenarios. This method involves new NS creation for helm release. For re-put scenarios, brownfield scenario needs to be handled where helm release still stays in default NS
-def helm_install_release(resource_manager, chart_path, subscription_id, kubernetes_distro, kubernetes_infra, resource_group_name,
-                         cluster_name, location, onboarding_tenant_id, http_proxy, https_proxy, no_proxy, proxy_cert, private_key_pem,
-                         kube_config, kube_context, no_wait, values_file, cloud_name, disable_auto_upgrade, enable_custom_locations,
-                         custom_locations_oid, helm_client_location, enable_private_link, arm_metadata, onboarding_timeout="600",
-                         container_log_path=None):
-
+def helm_install_release(resource_manager, chart_path, subscription_id, kubernetes_distro, kubernetes_infra, resource_group_name, cluster_name,
+                         location, onboarding_tenant_id, http_proxy, https_proxy, no_proxy, proxy_cert, private_key_pem,
+                         kube_config, kube_context, no_wait, values_file, cloud_name, disable_auto_upgrade,
+                         enable_custom_locations, custom_locations_oid, helm_client_location, enable_private_link, onboarding_timeout="600",
+                         container_log_path=None, enable_oidc_issuer=False):
     cmd_helm_install = [helm_client_location, "upgrade", "--install", "azure-arc", chart_path,
                         "--set", "global.subscriptionId={}".format(subscription_id),
                         "--set", "global.kubernetesDistro={}".format(kubernetes_distro),
@@ -633,6 +632,8 @@ def helm_install_release(resource_manager, chart_path, subscription_id, kubernet
         cmd_helm_install.extend(["--set", "global.isProxyEnabled={}".format(True)])
     if container_log_path is not None:
         cmd_helm_install.extend(["--set", "systemDefaultValues.fluent-bit.containerLogPath={}".format(container_log_path)])
+    if enable_oidc_issuer:
+        cmd_helm_install.extend(["--set", "global.enableOidcIssuer={}".format(True)])
     if kube_config:
         cmd_helm_install.extend(["--kubeconfig", kube_config])
     if kube_context:
